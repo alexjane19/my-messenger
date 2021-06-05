@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { User } = require("../../db/models");
+const { User, Conversation } = require("../../db/models");
 const { Op } = require("sequelize");
 const onlineUsers = require("../../onlineUsers");
 
@@ -10,27 +10,58 @@ router.get("/:username", async (req, res, next) => {
       return res.sendStatus(401);
     }
     const { username } = req.params;
-
-    const users = await User.findAll({
+        const conversations = await Conversation.findAll({
       where: {
-        username: {
-          [Op.substring]: username,
-        },
-        id: {
-          [Op.not]: req.user.id,
+        [Op.or]: {
+          user1Id:  req.user.id,
+          user2Id:  req.user.id,
         },
       },
+      attributes: ["id"],
+      include: [
+        {
+          model: User,
+          as: "user1",
+          where: {
+            username: {
+              [Op.substring]: username,
+            },
+            id: {
+              [Op.not]:  req.user.id,
+            },
+          },
+          attributes: ["id", "username", "photoUrl"],
+        },
+        {
+          model: User,
+          as: "user2",
+          where: {
+            username: {
+              [Op.substring]: username,
+            },
+            id: {
+              [Op.not]:  req.user.id,
+            },
+          },
+          attributes: ["id", "username", "photoUrl"],
+        },
+      ],
     });
 
-    // add online status to each user that is online
-    for (let i = 0; i < users.length; i++) {
-      const userJSON = users[i].toJSON();
-      if (onlineUsers.includes(userJSON.id)) {
-        userJSON.online = true;
+    const contacts = [];
+
+    for (let i = 0; i < conversations.length; i++) {
+      const convo = conversations[i];
+      const convoJSON = convo.toJSON();
+      if (convoJSON.user1) {
+        contacts[i] = convoJSON.user1;
+        delete convoJSON.user1;
+      } else if (convoJSON.user2) {
+        contacts[i] = convoJSON.user2;
+        delete convoJSON.user2;
       }
-      users[i] = userJSON;
     }
-    res.json(users);
+    res.json(contacts);
   } catch (error) {
     next(error);
   }
