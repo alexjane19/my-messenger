@@ -25,10 +25,10 @@ const Login = (props) => {
   const classes = formStyles();
   const handleLogin = async (event) => {
     event.preventDefault();
-    const username = event.target.username.value;
+    const email = event.target.email.value;
     const password = event.target.password.value;
 
-    await login({ username, password });
+    await login({ email, password });
   };
 
   if (user.id) {
@@ -77,10 +77,10 @@ const Login = (props) => {
                 <Grid item xs={8} className={classes.gridItemForm}>
                   <FormControl margin="normal" required fullWidth>
                     <TextField
-                        aria-label="username"
-                        label="Username"
-                        name="username"
-                        type="text"
+                        aria-label="email"
+                        label="Email"
+                        name="email"
+                        type="email"
                         required
                     />
 
