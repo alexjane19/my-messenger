@@ -1,5 +1,6 @@
 import axios from "axios";
 import socket from "../../socket";
+import Cookies from 'js-cookie';
 import {
   gotConversations,
   addConversation,
@@ -9,6 +10,7 @@ import {
 import { gotUser, setFetchingStatus } from "../user";
 
 axios.interceptors.request.use(async function (config) {
+  config.headers["x-csrf-token"] = Cookies.get('XSRF-TOKEN');
   return config;
 });
 

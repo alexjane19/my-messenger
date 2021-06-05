@@ -5,7 +5,7 @@ const logger = require("morgan");
 const jwt = require("jsonwebtoken");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-
+const csrf = require('csurf');
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const db = require("./db");
 const { User } = require("./db/models");
@@ -42,8 +42,9 @@ app.use(function (req, res, next) {
 });
 
 // require api routes here after I create them
-app.use("/auth", require("./routes/auth"));
 app.use("/api", require("./routes/api"));
+app.use(csrf({ cookie: true }));
+app.use("/auth", require("./routes/auth"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
