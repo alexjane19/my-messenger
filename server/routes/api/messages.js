@@ -14,8 +14,8 @@ router.post("/", async (req, res, next) => {
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
       let isOwnedConversation = await Conversation.isOwnedConversation(
+          conversationId,
           senderId,
-          conversationId
       );
       // if the conversation is owned by user, message can be sent.
       if (isOwnedConversation) {
