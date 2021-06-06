@@ -11,6 +11,7 @@ const { app, sessionStore } = require("../app");
 const http = require("http");
 const db = require("../db");
 const onlineUsers = require("../onlineUsers");
+const unreadMessages = require("../unreadMessages");
 
 /**
  * Get port from environment and store in Express.
@@ -45,6 +46,21 @@ io.on("connection", (socket) => {
       message: data.message,
       sender: data.sender,
     });
+
+    if (!(data.recipientId in unreadMessages)) {
+        unreadMessages[data.recipientId] = {};
+        unreadMessages[data.recipientId][data.message.conversationId] = [];
+    }
+    else if (!(data.message.conversationId in unreadMessages[data.recipientId])) {
+      unreadMessages[data.recipientId][data.message.conversationId] = [];
+    }
+    unreadMessages[data.recipientId][data.message.conversationId].push(data.message.id)
+
+    socket.broadcast.emit("unread", {
+      recipientId: data.recipientId,
+      conversations: unreadMessages[data.recipientId],
+    });
+
   });
 
   socket.on("logout", (id) => {
@@ -53,6 +69,11 @@ io.on("connection", (socket) => {
       onlineUsers.splice(userIndex, 1);
       socket.broadcast.emit("remove-offline-user", id);
     }
+  });
+
+  socket.on("read", (data) => {
+    delete unreadMessages[data.userId][data.conversationId];
+
   });
 });
 
