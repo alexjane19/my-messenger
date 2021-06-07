@@ -12,6 +12,8 @@ const http = require("http");
 const db = require("../db");
 const onlineUsers = require("../onlineUsers");
 const unreadMessages = require("../unreadMessages");
+const lastSeenMessage = require("../lastSeenMessage");
+
 
 /**
  * Get port from environment and store in Express.
@@ -72,8 +74,24 @@ io.on("connection", (socket) => {
   });
 
   socket.on("read", (data) => {
-    delete unreadMessages[data.userId][data.conversationId];
+    if (unreadMessages[data.userId][data.conversationId].includes(data.messageId)) {
+      msgIndex = unreadMessages[data.userId][data.conversationId].indexOf(data.messageId);
+      unreadMessages[data.userId][data.conversationId].splice(msgIndex, 1);
+    }
+    if (!(data.userId in lastSeenMessage)) {
+      lastSeenMessage[data.userId] = {};
+    }
 
+    if (!(data.conversationId in lastSeenMessage[data.userId])){
+      lastSeenMessage[data.userId][data.conversationId] = data.messageId;
+    }
+    else if(lastSeenMessage[data.userId][data.conversationId] < data.messageId ){
+      lastSeenMessage[data.userId][data.conversationId] = data.messageId;
+    }
+    socket.broadcast.emit("seen", {
+      conversationId: data.conversationId,
+      messageId: lastSeenMessage[data.userId][data.conversationId],
+    });
   });
 });
 

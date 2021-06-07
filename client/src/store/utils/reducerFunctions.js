@@ -93,3 +93,15 @@ export const addUnreadMessagesToStore = (state, conversationId, unreadMessages) 
     }
   });
 };
+
+export const addLastSeenMessageToStore = (state, conversationId, messageId) => {
+  return state.map((convo) => {
+    if (convo.id.toString() === conversationId.toString()) {
+      const convoCopy = { ...convo };
+      convoCopy.lastSeenMessage = messageId;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+};

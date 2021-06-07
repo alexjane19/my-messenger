@@ -114,13 +114,14 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   }
 };
 
-export const readMessages = (userId, conversationId) => async (dispatch) => {
+export const readMessages = (userId, message, newUnreadMessages) => async (dispatch) => {
   try {
     socket.emit("read", {
       userId: userId,
-      conversationId: conversationId,
+      conversationId: message.conversationId,
+      messageId: message.id,
     });
-    dispatch(addUnreadMessages(conversationId, []));
+    dispatch(addUnreadMessages(message.conversationId, newUnreadMessages));
   } catch (error) {
     console.error(error);
   }

@@ -3,6 +3,7 @@ const { User, Conversation, Message } = require("../../db/models");
 const { Op } = require("sequelize");
 const onlineUsers = require("../../onlineUsers");
 const unreadMessages = require("../../unreadMessages");
+const lastSeenMessage = require("../../lastSeenMessage");
 
 // get all conversations for a user, include latest message text for preview, and all messages
 // include other user model so we have info on username/profile pic (don't include current user info)
@@ -71,7 +72,15 @@ router.get("/", async (req, res, next) => {
 
       // set unread messages of this conversation
       if((userId in unreadMessages) && (convoJSON.id in unreadMessages[userId])){
-        convoJSON.unread =  unreadMessages[userId][convoJSON.id];
+        convoJSON.unread =  {
+          recipientId: userId,
+          messages: unreadMessages[userId][convoJSON.id],
+        };
+      }
+
+      // set last seen message of this conversation
+      if((convoJSON.otherUser.id in lastSeenMessage) && (convoJSON.id in lastSeenMessage[convoJSON.otherUser.id])){
+        convoJSON.lastSeenMessage = lastSeenMessage[convoJSON.otherUser.id][convoJSON.id];
       }
 
       // set properties for notification count and latest message preview

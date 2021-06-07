@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Badge } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -8,6 +9,9 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginLeft: 20,
     flexGrow: 1,
+  },
+  innerContainer:{
+    paddingRight: 40
   },
   username: {
     fontWeight: "bold",
@@ -51,18 +55,25 @@ const ChatContent = (props) => {
 
   return (
     <Box className={classes.root}>
-      <Box>
+      <Box className={classes.innerContainer}>
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText + (unread?.length>0 ? ' '+classes.previewTextActive : '')}>
+        <Typography className={classes.previewText + (unread?.messages?.length > 0 && unread?.recipientId === props.user.id ? ' '+classes.previewTextActive : '')}>
           {latestMessageText}
         </Typography>
       </Box>
-      <StyledBadge badgeContent={unread?.length}>
+      <StyledBadge badgeContent={unread?.messages?.length > 0 && unread?.recipientId === props.user.id ? unread?.messages?.length : 0}>
       </StyledBadge>
     </Box>
   );
 };
 
-export default ChatContent;
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.user
+  };
+};
+
+export default connect(mapStateToProps, null)(ChatContent);

@@ -5,6 +5,7 @@ import {
   removeOfflineUserFromStore,
   addMessageToStore,
   addUnreadMessagesToStore,
+  addLastSeenMessageToStore,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -17,6 +18,7 @@ const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
 const ADD_UNREAD_MESSAGES = "ADD_UNREAD_MESSAGES";
+const ADD_LAST_SEEN_MESSAGE = "ADD_LAST_SEEN_MESSAGE";
 
 // ACTION CREATORS
 
@@ -77,6 +79,13 @@ export const addUnreadMessages = (conversationId, unreadMessages) => {
   };
 };
 
+export const addLastSeenMessage = (conversationId, messageId) => {
+  return {
+    type: ADD_LAST_SEEN_MESSAGE,
+    payload: { conversationId, messageId },
+  };
+};
+
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -107,6 +116,12 @@ const reducer = (state = [], action) => {
           state,
           action.payload.conversationId,
           action.payload.unreadMessages
+      );
+    case ADD_LAST_SEEN_MESSAGE:
+      return addLastSeenMessageToStore(
+          state,
+          action.payload.conversationId,
+          action.payload.messageId
       );
     default:
       return state;
