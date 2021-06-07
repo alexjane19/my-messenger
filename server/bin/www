@@ -11,9 +11,7 @@ const { app, sessionStore } = require("../app");
 const http = require("http");
 const db = require("../db");
 const onlineUsers = require("../onlineUsers");
-const unreadMessages = require("../unreadMessages");
-const lastSeenMessage = require("../lastSeenMessage");
-
+const { ConversationLog } = require("../db/models");
 
 /**
  * Get port from environment and store in Express.
@@ -34,94 +32,127 @@ const server = http.createServer(app);
 
 const io = require("socket.io")(server);
 
+const unreadMessages = {};
+const lastSeenMessages = {};
 io.on("connection", (socket) => {
-  socket.on("go-online", (id) => {
-    if (!onlineUsers.includes(id)) {
-      onlineUsers.push(id);
-    }
-    // send the user who just went online to everyone else who is already online
-    socket.broadcast.emit("add-online-user", id);
-  });
+    socket.on("go-online", (id) => {
+        if (!onlineUsers.includes(id)) {
+            onlineUsers.push(id);
+            // retrieve unreadMessages and lastSeenMessages for each user
+            ConversationLog.findUnreadMessages(id).then(convs=>{
+                unreadMessages[id] = {};
+                lastSeenMessages[id] = {};
+                convs.map((conversation) => {
+                    unreadMessages[id][conversation.conversationId] = conversation.unreadMessages;
+                    lastSeenMessages[id][conversation.conversationId] = conversation.lastSeenMessage
 
-  socket.on("new-message", (data) => {
-    socket.broadcast.emit("new-message", {
-      message: data.message,
-      sender: data.sender,
+                });
+            })
+        }
+        // send the user who just went online to everyone else who is already online
+        socket.broadcast.emit("add-online-user", id);
     });
 
-    if (!(data.recipientId in unreadMessages)) {
-        unreadMessages[data.recipientId] = {};
-        unreadMessages[data.recipientId][data.message.conversationId] = [];
-    }
-    else if (!(data.message.conversationId in unreadMessages[data.recipientId])) {
-      unreadMessages[data.recipientId][data.message.conversationId] = [];
-    }
-    unreadMessages[data.recipientId][data.message.conversationId].push(data.message.id)
+    socket.on("new-message", (data) => {
+        socket.broadcast.emit("new-message", {
+            message: data.message,
+            sender: data.sender,
+        });
 
-    socket.broadcast.emit("unread", {
-      recipientId: data.recipientId,
-      conversations: unreadMessages[data.recipientId],
+        // update unreadMessages for each user
+        if (!(data.recipientId in unreadMessages)) {
+            unreadMessages[data.recipientId] = {};
+            unreadMessages[data.recipientId][data.message.conversationId] = [];
+        }
+        else if (!(data.message.conversationId in unreadMessages[data.recipientId])) {
+            unreadMessages[data.recipientId][data.message.conversationId] = [];
+        }
+        unreadMessages[data.recipientId][data.message.conversationId].push(data.message.id);
+
+        socket.broadcast.emit("unread", {
+            recipientId: data.recipientId,
+            conversations: unreadMessages[data.recipientId],
+        });
+
+        // commit the changes of unreadMessages to db
+        ConversationLog.upsert({
+            userId: data.recipientId,
+            conversationId: data.message.conversationId,
+            unreadMessages: unreadMessages[data.recipientId][data.message.conversationId]
+        });
+
+
+
     });
 
-  });
-
-  socket.on("logout", (id) => {
-    if (onlineUsers.includes(id)) {
-      userIndex = onlineUsers.indexOf(id);
-      onlineUsers.splice(userIndex, 1);
-      socket.broadcast.emit("remove-offline-user", id);
-    }
-  });
-
-  socket.on("read", (data) => {
-    if (unreadMessages[data.userId][data.conversationId].includes(data.messageId)) {
-      msgIndex = unreadMessages[data.userId][data.conversationId].indexOf(data.messageId);
-      unreadMessages[data.userId][data.conversationId].splice(msgIndex, 1);
-    }
-    if (!(data.userId in lastSeenMessage)) {
-      lastSeenMessage[data.userId] = {};
-    }
-
-    if (!(data.conversationId in lastSeenMessage[data.userId])){
-      lastSeenMessage[data.userId][data.conversationId] = data.messageId;
-    }
-    else if(lastSeenMessage[data.userId][data.conversationId] < data.messageId ){
-      lastSeenMessage[data.userId][data.conversationId] = data.messageId;
-    }
-    socket.broadcast.emit("seen", {
-      conversationId: data.conversationId,
-      messageId: lastSeenMessage[data.userId][data.conversationId],
+    socket.on("logout", (id) => {
+        if (onlineUsers.includes(id)) {
+            userIndex = onlineUsers.indexOf(id);
+            onlineUsers.splice(userIndex, 1);
+            socket.broadcast.emit("remove-offline-user", id);
+        }
     });
-  });
+
+    socket.on("read", (data) => {
+
+        // update unreadMessages for each user
+        if (unreadMessages[data.userId][data.conversationId].includes(data.messageId)) {
+            msgIndex = unreadMessages[data.userId][data.conversationId].indexOf(data.messageId);
+            unreadMessages[data.userId][data.conversationId].splice(msgIndex, 1);
+        }
+
+        // update lastSeenMessages for each user
+        if (!(data.userId in lastSeenMessages)) {
+            lastSeenMessages[data.userId] = {};
+        }
+
+        if (!(data.conversationId in lastSeenMessages[data.userId])){
+            lastSeenMessages[data.userId][data.conversationId] = data.messageId;
+        }
+        else if(lastSeenMessages[data.userId][data.conversationId] < data.messageId ){
+            lastSeenMessages[data.userId][data.conversationId] = data.messageId;
+        }
+        socket.broadcast.emit("seen", {
+            conversationId: data.conversationId,
+            messageId: lastSeenMessages[data.userId][data.conversationId],
+        });
+
+        // commit the changes of unreadMessages and lastSeenMessages to db
+        ConversationLog.upsert({
+            userId: data.userId,
+            conversationId: data.conversationId,
+            unreadMessages: unreadMessages[data.userId][data.conversationId],
+            lastSeenMessage: lastSeenMessages[data.userId][data.conversationId]});
+    });
 });
 
 sessionStore
-  .sync()
-  .then(() => db.sync())
-  .then(() => {
-    server.listen(port);
-    server.on("error", onError);
-    server.on("listening", onListening);
-  });
+    .sync()
+    .then(() => db.sync())
+    .then(() => {
+        server.listen(port);
+        server.on("error", onError);
+        server.on("listening", onListening);
+    });
 
 /**
  * Normalize a port into a number, string, or false.
  */
 
 function normalizePort(val) {
-  const port = parseInt(val, 10);
+    const port = parseInt(val, 10);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
 
-  return false;
+    return false;
 }
 
 /**
@@ -129,25 +160,25 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== "listen") {
-    throw error;
-  }
+    if (error.syscall !== "listen") {
+        throw error;
+    }
 
-  const bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+    const bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case "EACCES":
-      console.error(bind + " requires elevated privileges");
-      process.exit(1);
-      break;
-    case "EADDRINUSE":
-      console.error(bind + " is already in use");
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case "EACCES":
+            console.error(bind + " requires elevated privileges");
+            process.exit(1);
+            break;
+        case "EADDRINUSE":
+            console.error(bind + " is already in use");
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 /**
@@ -155,8 +186,8 @@ function onError(error) {
  */
 
 function onListening() {
-  const addr = server.address();
-  const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+    const addr = server.address();
+    const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
 
-  console.log("Listening on " + bind);
+    console.log("Listening on " + bind);
 }
