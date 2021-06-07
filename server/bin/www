@@ -46,8 +46,6 @@ io.on("connection", (socket) => {
         socket.join(conv);
       })
     });
-    // send the user who just went online to everyone else who is already online
-    // socket.broadcast.emit("add-online-user", id);
 
   });
 
@@ -71,7 +69,6 @@ io.on("connection", (socket) => {
           socket.leave(conv);
         })
       });
-      // socket.broadcast.emit("remove-offline-user", id);
     }
   });
 
