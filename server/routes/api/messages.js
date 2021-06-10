@@ -14,23 +14,27 @@ router.post("/", async (req, res, next) => {
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
       let isOwnedConversation = await Conversation.isOwnedConversation(
-          conversationId,
-          senderId,
+        conversationId,
+        senderId
       );
       // if the conversation is owned by user, message can be sent.
       if (isOwnedConversation) {
-        const message = await Message.create({ senderId, text, conversationId });
+        const message = await Message.create({
+          senderId,
+          text,
+          conversationId,
+        });
         return res.json({ message, sender });
-      }else{
+      } else {
         return res
-            .status(404)
-            .json({ error: "The conversation is not found!" });
+          .status(404)
+          .json({ error: "The conversation is not found!" });
       }
     }
     // if we don't have conversation id, find a conversation to make sure it doesn't already exist
     let conversation = await Conversation.findConversation(
-        senderId,
-        recipientId
+      senderId,
+      recipientId
     );
 
     if (!conversation) {
@@ -63,25 +67,25 @@ router.post("/history", async (req, res, next) => {
     const { conversationId, page } = req.body;
     if (conversationId) {
       let conversation = await Conversation.isOwnedConversation(
-          conversationId,
-          userId,
+        conversationId,
+        userId
       );
-      if(!conversation){
+      if (!conversation) {
         return res
-            .status(404)
-            .json({ error: "The conversation is not found!" });
+          .status(404)
+          .json({ error: "The conversation is not found!" });
       }
-      const messages = await conversation.getMessages({ limit: Message.LIMIT_PAGE, offset: page*Message.LIMIT_PAGE,order: [["createdAt", "DESC"]] });
+      const messages = await conversation.getMessages({
+        limit: Message.LIMIT_PAGE,
+        offset: page * Message.LIMIT_PAGE,
+        order: [["createdAt", "DESC"]],
+      });
       if (!messages || messages.length === 0) {
-        return res
-            .status(404)
-            .json({ error: "No messages!" });
+        return res.status(404).json({ error: "No messages!" });
       }
       return res.json(messages);
-    }else {
-      return res
-          .status(400)
-          .json({ error: "conversationId is required!" });
+    } else {
+      return res.status(400).json({ error: "conversationId is required!" });
     }
   } catch (error) {
     next(error);

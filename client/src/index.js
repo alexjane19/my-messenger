@@ -11,7 +11,7 @@ ReactDOM.render(<App />, document.getElementById("root"));
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-if (typeof window !== 'undefined') {
-    // Polyfills for intersection-observer
-    require('intersection-observer');
+if (typeof window !== "undefined") {
+  // Polyfills for intersection-observer
+  require("intersection-observer");
 }

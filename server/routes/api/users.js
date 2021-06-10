@@ -10,11 +10,11 @@ router.get("/:username", async (req, res, next) => {
       return res.sendStatus(401);
     }
     const { username } = req.params;
-        const conversations = await Conversation.findAll({
+    const conversations = await Conversation.findAll({
       where: {
         [Op.or]: {
-          user1Id:  req.user.id,
-          user2Id:  req.user.id,
+          user1Id: req.user.id,
+          user2Id: req.user.id,
         },
       },
       attributes: ["id"],
@@ -27,7 +27,7 @@ router.get("/:username", async (req, res, next) => {
               [Op.substring]: username,
             },
             id: {
-              [Op.not]:  req.user.id,
+              [Op.not]: req.user.id,
             },
           },
           attributes: ["id", "username", "photoUrl"],
@@ -40,7 +40,7 @@ router.get("/:username", async (req, res, next) => {
               [Op.substring]: username,
             },
             id: {
-              [Op.not]:  req.user.id,
+              [Op.not]: req.user.id,
             },
           },
           attributes: ["id", "username", "photoUrl"],

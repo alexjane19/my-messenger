@@ -74,7 +74,7 @@ router.delete("/logout", (req, res, next) => {
 
 router.get("/user", (req, res, next) => {
   csrfToken = req.csrfToken();
-  res.cookie('XSRF-TOKEN', csrfToken);
+  res.cookie("XSRF-TOKEN", csrfToken);
   if (req.user) {
     return res.json(req.user);
   } else {

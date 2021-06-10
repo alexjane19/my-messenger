@@ -1,15 +1,15 @@
 import React from "react";
-import {makeStyles} from "@material-ui/core/styles";
-import {Box} from "@material-ui/core";
-import {Header, Input, Messages} from "./index";
-import {connect} from "react-redux";
-import {fetchMessages} from "../../store/utils/thunkCreators";
+import { makeStyles } from "@material-ui/core/styles";
+import { Box } from "@material-ui/core";
+import { Header, Input, Messages } from "./index";
+import { connect } from "react-redux";
+import { fetchMessages } from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexGrow: 8,
-    flexDirection: "column"
+    flexDirection: "column",
   },
   chatContainer: {
     marginLeft: 41,
@@ -17,8 +17,8 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
-    justifyContent: "space-between"
-  }
+    justifyContent: "space-between",
+  },
 }));
 
 const ActiveChat = (props) => {
@@ -27,31 +27,31 @@ const ActiveChat = (props) => {
   const conversation = props.conversation || {};
 
   return (
-      <Box className={classes.root}>
-        {conversation.otherUser && (
-            <>
-              <Header
-                  username={conversation.otherUser.username}
-                  online={conversation.otherUser.online || false}
-              />
-              <Box className={classes.chatContainer}>
-                <Messages
-                    messages={conversation.messages}
-                    otherUser={conversation.otherUser}
-                    userId={user.id}
-                    conversationId={conversation.id}
-                    fetchMessages={props.fetchMessages}
-                    total={conversation.total}
-                />
-                <Input
-                    otherUser={conversation.otherUser}
-                    conversationId={conversation.id}
-                    user={user}
-                />
-              </Box>
-            </>
-        )}
-      </Box>
+    <Box className={classes.root}>
+      {conversation.otherUser && (
+        <>
+          <Header
+            username={conversation.otherUser.username}
+            online={conversation.otherUser.online || false}
+          />
+          <Box className={classes.chatContainer}>
+            <Messages
+              messages={conversation.messages}
+              otherUser={conversation.otherUser}
+              userId={user.id}
+              conversationId={conversation.id}
+              fetchMessages={props.fetchMessages}
+              total={conversation.total}
+            />
+            <Input
+              otherUser={conversation.otherUser}
+              conversationId={conversation.id}
+              user={user}
+            />
+          </Box>
+        </>
+      )}
+    </Box>
   );
 };
 
@@ -59,18 +59,19 @@ const mapStateToProps = (state) => {
   return {
     user: state.user,
     conversation:
-        state.conversations &&
-        state.conversations.find(
-            (conversation) => conversation.otherUser.username === state.activeConversation
-        )
+      state.conversations &&
+      state.conversations.find(
+        (conversation) =>
+          conversation.otherUser.username === state.activeConversation
+      ),
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     fetchMessages: (body) => {
-      dispatch(fetchMessages(body))
-    }
+      dispatch(fetchMessages(body));
+    },
   };
 };
 

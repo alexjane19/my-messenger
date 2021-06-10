@@ -1,34 +1,32 @@
-import React, {Component} from "react";
-import {Box, withStyles} from "@material-ui/core";
-import {OtherUserBubble, SenderBubble} from "../ActiveChat";
+import React, { Component } from "react";
+import { Box, withStyles } from "@material-ui/core";
+import { OtherUserBubble, SenderBubble } from "../ActiveChat";
 import moment from "moment";
-import {InView} from 'react-intersection-observer';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { InView } from "react-intersection-observer";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const styles = {
   root: {
-    display: 'flex',
-    flexDirection:'column-reverse'
+    display: "flex",
+    flexDirection: "column-reverse",
   },
 
   progressBarContainer: {
-    textAlign: 'center'
-  }
+    textAlign: "center",
+  },
 };
 
 class Messages extends Component {
   constructor(props) {
     super(props);
-    this.page= {
-    };
-
+    this.page = {};
   }
   loading = async (inView) => {
-    if (this.page[this.props.conversationId] === undefined){
-      this.page[this.props.conversationId] =0
+    if (this.page[this.props.conversationId] === undefined) {
+      this.page[this.props.conversationId] = 0;
     }
 
-    if(inView){
+    if (inView) {
       const reqBody = {
         conversationId: this.props.conversationId,
         page: ++this.page[this.props.conversationId],
@@ -38,25 +36,36 @@ class Messages extends Component {
   };
   render() {
     const { classes } = this.props;
-    const {messages, otherUser, userId, total, conversationId} = this.props;
+    const { messages, otherUser, userId, total, conversationId } = this.props;
     return (
-        <Box className={classes.root}>
-          {messages.map((message) => {
-            const time = moment(message.createdAt).format("h:mm");
+      <Box className={classes.root}>
+        {messages.map((message) => {
+          const time = moment(message.createdAt).format("h:mm");
 
-            return message.senderId === userId ? (
-                <SenderBubble key={message.id} text={message.text} time={time}/>
-            ) : (
-                <OtherUserBubble key={message.id} text={message.text} time={time} otherUser={otherUser}/>
-            );
-          })}
-          {total > messages.length ?
-              <InView key={'loading'+ conversationId} onChange={(inView, entry) => this.loading(inView)} threshold={0.3} className={classes.progressBarContainer}>
-                <CircularProgress key={'circular'+ conversationId} />
-              </InView>: null}
-        </Box>
+          return message.senderId === userId ? (
+            <SenderBubble key={message.id} text={message.text} time={time} />
+          ) : (
+            <OtherUserBubble
+              key={message.id}
+              text={message.text}
+              time={time}
+              otherUser={otherUser}
+            />
+          );
+        })}
+        {total > messages.length ? (
+          <InView
+            key={"loading" + conversationId}
+            onChange={(inView, entry) => this.loading(inView)}
+            threshold={0.3}
+            className={classes.progressBarContainer}
+          >
+            <CircularProgress key={"circular" + conversationId} />
+          </InView>
+        ) : null}
+      </Box>
     );
   }
 }
 
-export default (withStyles(styles)(Messages));
+export default withStyles(styles)(Messages);

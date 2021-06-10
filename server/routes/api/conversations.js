@@ -68,7 +68,10 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser.online = false;
       }
       convoJSON.total = convo.messages.length;
-      convoJSON.messages = await convo.getMessages({ limit: Message.LIMIT_PAGE, order: [["createdAt", "DESC"]] });
+      convoJSON.messages = await convo.getMessages({
+        limit: Message.LIMIT_PAGE,
+        order: [["createdAt", "DESC"]],
+      });
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText = convoJSON.messages[0].text;
       conversations[i] = convoJSON;
