@@ -18,7 +18,6 @@ import {login} from "../../store/utils/thunkCreators";
 import {formStyles} from "./StyleForm";
 
 
-
 const Login = (props) => {
   const history = useHistory();
   const { user, login } = props;
@@ -133,7 +132,5 @@ const mapDispatchToProps = (dispatch) => {
     },
   };
 };
-
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

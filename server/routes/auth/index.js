@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { User } = require("../../db/models");
-const jwt = require("jsonwebtoken");
+const cookieObject = require("../../cookie");
+const jwtToken = require("../../utils/jwtToken");
 
 router.post("/register", async (req, res, next) => {
   try {
@@ -21,16 +22,8 @@ router.post("/register", async (req, res, next) => {
 
     const user = await User.create(req.body);
 
-    const token = jwt.sign(
-      { id: user.dataValues.id },
-      process.env.SESSION_SECRET,
-      { expiresIn: 86400 }
-    );
-    res.cookie("jwtToken", token, {
-      secure: process.env.NODE_ENV !== "development",
-      httpOnly: true,
-      maxAge: 86400,
-    });
+    const token = jwtToken.getToken({ id: user.dataValues.id });
+    res.cookie("jwtToken", token, cookieObject.option);
     res.json({
       ...user.dataValues,
     });
@@ -63,16 +56,8 @@ router.post("/login", async (req, res, next) => {
       console.log({ error: "Wrong email and/or password" });
       res.status(401).json({ error: "Wrong email and/or password" });
     } else {
-      const token = jwt.sign(
-        { id: user.dataValues.id },
-        process.env.SESSION_SECRET,
-        { expiresIn: 86400 }
-      );
-      res.cookie("jwtToken", token, {
-        secure: process.env.NODE_ENV !== "development",
-        httpOnly: true,
-        maxAge: 86400,
-      });
+      const token = jwtToken.getToken({ id: user.dataValues.id });
+      res.cookie("jwtToken", token, cookieObject.option);
       res.json({
         ...user.dataValues,
       });

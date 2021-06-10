@@ -12,4 +12,6 @@ const Message = db.define("message", {
   },
 });
 
+Message.LIMIT_PAGE = 30;
+
 module.exports = Message;

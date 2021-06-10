@@ -29,8 +29,8 @@ router.post("/", async (req, res, next) => {
     }
     // if we don't have conversation id, find a conversation to make sure it doesn't already exist
     let conversation = await Conversation.findConversation(
-      senderId,
-      recipientId
+        senderId,
+        recipientId
     );
 
     if (!conversation) {
@@ -49,6 +49,40 @@ router.post("/", async (req, res, next) => {
       conversationId: conversation.id,
     });
     res.json({ message, sender });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/history", async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.sendStatus(401);
+    }
+    const userId = req.user.id;
+    const { conversationId, page } = req.body;
+    if (conversationId) {
+      let conversation = await Conversation.isOwnedConversation(
+          conversationId,
+          userId,
+      );
+      if(!conversation){
+        return res
+            .status(404)
+            .json({ error: "The conversation is not found!" });
+      }
+      const messages = await conversation.getMessages({ limit: Message.LIMIT_PAGE, offset: page*Message.LIMIT_PAGE,order: [["createdAt", "DESC"]] });
+      if (!messages || messages.length === 0) {
+        return res
+            .status(404)
+            .json({ error: "No messages!" });
+      }
+      return res.json(messages);
+    }else {
+      return res
+          .status(400)
+          .json({ error: "conversationId is required!" });
+    }
   } catch (error) {
     next(error);
   }
