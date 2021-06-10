@@ -64,6 +64,14 @@ export const logout = (id) => async (dispatch) => {
   }
 };
 
+export const forget = (credentials) => async (dispatch) => {
+  try {
+    const { data } = await axios.post("/auth/forget", credentials);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 // CONVERSATIONS THUNK CREATORS
 
 export const fetchConversations = () => async (dispatch) => {

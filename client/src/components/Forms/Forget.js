@@ -1,47 +1,40 @@
 import React from "react";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import {
   Box,
   Button,
   FormControl,
   Grid,
-  Input,
-  InputAdornment,
-  InputLabel,
   TextField,
   Typography,
 } from "@material-ui/core";
-import { login } from "../../store/utils/thunkCreators";
+import { forget } from "../../store/utils/thunkCreators";
 import { formStyles } from "./StyleForm";
 import BackgroundImage from "./BackgroundImage";
 import TopActionBar from "./TopActionBar";
 
-const Login = (props) => {
-  const history = useHistory();
-  const { user, login } = props;
+const Forget = (props) => {
+  const { user, forget } = props;
   const classes = formStyles();
-  const handleLogin = async (event) => {
+  const handleForget = async (event) => {
     event.preventDefault();
     const email = event.target.email.value;
-    const password = event.target.password.value;
-
-    await login({ email, password });
+    await forget({ email });
   };
 
   if (user.id) {
     return <Redirect to="/home" />;
   }
-
   return (
     <Box height="100vh" display="flex" flexDirection="column">
       <Grid container justify="center" className={classes.root}>
         <BackgroundImage />
         <Grid item xs={12} sm={7}>
           <TopActionBar
-            leftTitle="Don’t have an account?"
-            rightButtonTitle="Create account"
-            rightButtonLink="/register"
+            leftTitle="Already have an account?"
+            rightButtonTitle="Login"
+            rightButtonLink="/login"
           />
           <Grid
             container
@@ -50,10 +43,10 @@ const Login = (props) => {
             alignItems="center"
             className={classes.formContainer}
           >
-            <form onSubmit={handleLogin} className={classes.innerForm}>
+            <form onSubmit={handleForget} className={classes.innerForm}>
               <Grid item xs={8} className={classes.gridItemForm}>
                 <Typography align="left" variant="h6">
-                  <b>Welcome back!</b>
+                  <b>Forgotten your password!</b>
                 </Typography>
               </Grid>
               <Grid item xs={8} className={classes.gridItemForm}>
@@ -68,27 +61,6 @@ const Login = (props) => {
                 </FormControl>
               </Grid>
               <Grid item xs={8} className={classes.gridItemForm}>
-                <FormControl margin="normal" required fullWidth>
-                  <InputLabel>Password</InputLabel>
-                  <Input
-                    label="Password"
-                    aria-label="password"
-                    type="password"
-                    name="password"
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <Button
-                          color="primary"
-                          onClick={() => history.push("/forget")}
-                        >
-                          Forgot?
-                        </Button>
-                      </InputAdornment>
-                    }
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={8} className={classes.gridItemForm}>
                 <Button
                   type="submit"
                   variant="contained"
@@ -96,7 +68,7 @@ const Login = (props) => {
                   color="primary"
                   className={classes.formButton}
                 >
-                  Login
+                  Forget
                 </Button>
               </Grid>
             </form>
@@ -115,10 +87,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    login: (credentials) => {
-      dispatch(login(credentials));
+    forget: (credentials) => {
+      dispatch(forget(credentials));
     },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Forget);
