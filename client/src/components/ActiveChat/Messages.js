@@ -53,7 +53,7 @@ class Messages extends Component {
             />
           );
         })}
-        {total > messages.length ? (
+        {total > messages.length && (
           <InView
             key={"loading" + conversationId}
             onChange={(inView, entry) => this.loading(inView)}
@@ -62,7 +62,7 @@ class Messages extends Component {
           >
             <CircularProgress key={"circular" + conversationId} />
           </InView>
-        ) : null}
+        )}
       </Box>
     );
   }
