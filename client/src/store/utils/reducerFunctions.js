@@ -82,7 +82,6 @@ export const addNewConvoToStore = (state, recipientId, message) => {
   });
 };
 
-
 export const addUserIsTypingToStore = (state, id) => {
   return state.map((convo) => {
     if (convo.otherUser.id === id) {

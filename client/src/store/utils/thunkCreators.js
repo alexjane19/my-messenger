@@ -1,6 +1,6 @@
 import axios from "axios";
 import socket from "../../socket";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import {
   gotConversations,
   addConversation,
@@ -10,7 +10,7 @@ import {
 import { gotUser, setFetchingStatus } from "../user";
 
 axios.interceptors.request.use(async function (config) {
-  config.headers["x-csrf-token"] = Cookies.get('XSRF-TOKEN');
+  config.headers["x-csrf-token"] = Cookies.get("XSRF-TOKEN");
   return config;
 });
 
@@ -91,7 +91,7 @@ const sendMessage = (data, body) => {
 // conversationId will be set to null if its a brand new conversation
 export const postMessage = (body) => async (dispatch) => {
   try {
-    const data  = await saveMessage(body);
+    const data = await saveMessage(body);
     if (!body.conversationId) {
       dispatch(addConversation(body.recipientId, data.message));
     } else {

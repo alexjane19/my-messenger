@@ -21,36 +21,41 @@ const useStyles = makeStyles(() => ({
   bubble: {
     backgroundImage: "linear-gradient(225deg, #6CC1FF 0%, #3A8DFF 100%)",
     borderRadius: "0 10px 10px 10px",
-  },
-  text: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    letterSpacing: -0.2,
+    display: "flex",
+    alignItems: "center",
+    alignContent: "space-between",
     padding: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ffffff",
   },
 }));
 
-const OtherUserBubble = (props) => {
+const IsTypingView = (props) => {
   const classes = useStyles();
-  const { text, time, otherUser } = props;
+  const { otherUser } = props;
   return (
     <Box className={classes.root}>
       <Avatar
         alt={otherUser.username}
         src={otherUser.photoUrl}
         className={classes.avatar}
-      ></Avatar>
+      />
       <Box>
         <Typography className={classes.usernameDate}>
-          {otherUser.username} {time}
+          {otherUser.username}
         </Typography>
         <Box className={classes.bubble}>
-          <Typography className={classes.text}>{text}</Typography>
+          <Box m={0.5} className={classes.dot} />
+          <Box m={0.5} className={classes.dot} />
+          <Box m={0.5} className={classes.dot} />
         </Box>
       </Box>
     </Box>
   );
 };
 
-export default OtherUserBubble;
+export default IsTypingView;

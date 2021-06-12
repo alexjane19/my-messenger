@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { FormControl, FilledInput } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
-import { postMessage, sendTypingStatus} from "../../store/utils/thunkCreators";
+import { postMessage, sendTypingStatus } from "../../store/utils/thunkCreators";
 
 const styles = {
   root: {
@@ -24,7 +24,7 @@ class Input extends Component {
       text: "",
     };
     this.typingTimer = null; //timer identifier
-    this.doneTypingInterval = 5000;  //time in ms, 5 second for example
+    this.doneTypingInterval = 5000; //time in ms, 5 second for example
   }
 
   handleChange = (event) => {
