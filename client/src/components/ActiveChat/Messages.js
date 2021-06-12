@@ -34,11 +34,26 @@ class Messages extends Component {
       await this.props.fetchMessages(reqBody);
     }
   };
+  scrollToBottom = () => {
+    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+  };
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 500);
+  }
+
   render() {
     const { classes } = this.props;
     const { messages, otherUser, userId, total, conversationId } = this.props;
     return (
       <Box className={classes.root}>
+        <Box
+          ref={(el) => {
+            this.messagesEnd = el;
+          }}
+        />
         {messages.map((message) => {
           const time = moment(message.createdAt).format("h:mm");
 
