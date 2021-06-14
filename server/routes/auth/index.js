@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { User } = require("../../db/models");
-const jwt = require("jsonwebtoken");
+const cookieObject = require("../../cookie");
+const jwtToken = require("../../utils/jwtToken");
 
 router.post("/register", async (req, res, next) => {
   try {
@@ -21,14 +22,10 @@ router.post("/register", async (req, res, next) => {
 
     const user = await User.create(req.body);
 
-    const token = jwt.sign(
-      { id: user.dataValues.id },
-      process.env.SESSION_SECRET,
-      { expiresIn: 86400 }
-    );
+    const token = jwtToken.getToken({ id: user.dataValues.id });
+    res.cookie("jwtToken", token, cookieObject.option);
     res.json({
       ...user.dataValues,
-      token,
     });
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
@@ -42,31 +39,27 @@ router.post("/register", async (req, res, next) => {
 router.post("/login", async (req, res, next) => {
   try {
     // expects username and password in req.body
-    const { username, password } = req.body;
-    if (!username || !password)
+    const { email, password } = req.body;
+    if (!email || !password)
       return res.status(400).json({ error: "Username and password required" });
 
     const user = await User.findOne({
       where: {
-        username: req.body.username,
+        email: req.body.email,
       },
     });
 
     if (!user) {
-      console.log({ error: `No user found for username: ${username}` });
-      res.status(401).json({ error: "Wrong username and/or password" });
+      console.log({ error: `No user found for email: ${email}` });
+      res.status(401).json({ error: "Wrong email and/or password" });
     } else if (!user.correctPassword(password)) {
-      console.log({ error: "Wrong username and/or password" });
-      res.status(401).json({ error: "Wrong username and/or password" });
+      console.log({ error: "Wrong email and/or password" });
+      res.status(401).json({ error: "Wrong email and/or password" });
     } else {
-      const token = jwt.sign(
-        { id: user.dataValues.id },
-        process.env.SESSION_SECRET,
-        { expiresIn: 86400 }
-      );
+      const token = jwtToken.getToken({ id: user.dataValues.id });
+      res.cookie("jwtToken", token, cookieObject.option);
       res.json({
         ...user.dataValues,
-        token,
       });
     }
   } catch (error) {
@@ -75,10 +68,13 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.delete("/logout", (req, res, next) => {
+  res.clearCookie("jwtToken");
   res.sendStatus(204);
 });
 
 router.get("/user", (req, res, next) => {
+  csrfToken = req.csrfToken();
+  res.cookie("XSRF-TOKEN", csrfToken);
   if (req.user) {
     return res.json(req.user);
   } else {

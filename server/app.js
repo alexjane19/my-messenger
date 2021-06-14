@@ -4,6 +4,8 @@ const { join } = require("path");
 const logger = require("morgan");
 const jwt = require("jsonwebtoken");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const csrf = require("csurf");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const db = require("./db");
 const { User } = require("./db/models");
@@ -15,12 +17,13 @@ const { json, urlencoded } = express;
 const app = express();
 
 app.use(logger("dev"));
+app.use(cookieParser());
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(express.static(join(__dirname, "public")));
 
 app.use(function (req, res, next) {
-  const token = req.headers["x-access-token"];
+  const token = req.cookies.jwtToken;
   if (token) {
     jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
       if (err) {
@@ -39,8 +42,9 @@ app.use(function (req, res, next) {
 });
 
 // require api routes here after I create them
-app.use("/auth", require("./routes/auth"));
 app.use("/api", require("./routes/api"));
+app.use(csrf({ cookie: true }));
+app.use("/auth", require("./routes/auth"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
