@@ -7,6 +7,8 @@ import {
   addMessagesToStore,
   addUserIsTypingToStore,
   removeUserIsTypingToStore,
+  addUnreadMessagesToStore,
+  addLastSeenMessageToStore,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -21,6 +23,8 @@ const ADD_CONVERSATION = "ADD_CONVERSATION";
 const SET_MESSAGES = "SET_MESSAGES";
 const ADD_USER_IS_TYPING = "ADD_USER_IS_TYPING";
 const REMOVE_USER_IS_TYPING = "REMOVE_USER_IS_TYPING";
+const ADD_UNREAD_MESSAGES = "ADD_UNREAD_MESSAGES";
+const ADD_LAST_SEEN_MESSAGE = "ADD_LAST_SEEN_MESSAGE";
 
 // ACTION CREATORS
 
@@ -94,6 +98,21 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
+
+export const addUnreadMessages = (conversationId, unreadMessages) => {
+  return {
+    type: ADD_UNREAD_MESSAGES,
+    payload: { conversationId, unreadMessages },
+  };
+};
+
+export const addLastSeenMessage = (conversationId, messageId) => {
+  return {
+    type: ADD_LAST_SEEN_MESSAGE,
+    payload: { conversationId, messageId },
+  };
+};
+
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -117,6 +136,19 @@ const reducer = (state = [], action) => {
         state,
         action.payload.recipientId,
         action.payload.newMessage
+
+      );
+    case ADD_UNREAD_MESSAGES:
+      return addUnreadMessagesToStore(
+          state,
+          action.payload.conversationId,
+          action.payload.unreadMessages
+      );
+    case ADD_LAST_SEEN_MESSAGE:
+      return addLastSeenMessageToStore(
+          state,
+          action.payload.conversationId,
+          action.payload.messageId
       );
     case SET_MESSAGES:
       return addMessagesToStore(state, action.payload);

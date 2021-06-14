@@ -4,6 +4,8 @@ import {
   setNewMessage,
   removeOfflineUser,
   addOnlineUser,
+  addUnreadMessages,
+  addLastSeenMessage,
   addUserIsTyping,
   removeUserIsTyping,
 } from "./store/conversations";
@@ -27,6 +29,16 @@ socket.on("connect", () => {
   socket.on("typing", (data) => {
     if (data.status) store.dispatch(addUserIsTyping(data.sender));
     else store.dispatch(removeUserIsTyping(data.sender));
+  });
+  socket.on("unread", (data) => {
+    Object.keys(data["conversations"]).map(k => store.dispatch(addUnreadMessages(k, {
+      recipientId: data["recipientId"],
+      messages: data["conversations"][k],
+    })));
+  });
+
+  socket.on("seen", (data) => {
+    store.dispatch(addLastSeenMessage(data.conversationId, data.messageId));
   });
 });
 

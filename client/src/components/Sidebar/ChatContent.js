@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Typography, Badge } from "@material-ui/core";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -8,6 +9,9 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginLeft: 20,
     flexGrow: 1,
+  },
+  innerContainer:{
+    paddingRight: 40
   },
   username: {
     fontWeight: "bold",
@@ -18,7 +22,16 @@ const useStyles = makeStyles((theme) => ({
     color: "#9CADC8",
     letterSpacing: -0.17,
   },
-  notification: {
+  previewTextActive: {
+    color: "#000000",
+    fontWeight: 'bold'
+  },
+}));
+
+const StyledBadge = withStyles((theme) => ({
+  badge: {
+    right: 20,
+    top: 30,
     height: 20,
     width: 20,
     backgroundColor: "#3F92FF",
@@ -32,26 +45,35 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     borderRadius: 10,
   },
-}));
+}))(Badge);
 
 const ChatContent = (props) => {
   const classes = useStyles();
 
   const { conversation } = props;
-  const { latestMessageText, otherUser } = conversation;
+  const { latestMessageText, otherUser, unread } = conversation;
 
   return (
     <Box className={classes.root}>
-      <Box>
+      <Box className={classes.innerContainer}>
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText}>
+        <Typography className={classes.previewText + (unread?.messages?.length > 0 && unread?.recipientId === props.user.id ? ' '+classes.previewTextActive : '')}>
           {latestMessageText}
         </Typography>
       </Box>
+      <StyledBadge badgeContent={unread?.messages?.length > 0 && unread?.recipientId === props.user.id ? unread?.messages?.length : 0}>
+      </StyledBadge>
     </Box>
   );
 };
 
-export default ChatContent;
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.user
+  };
+};
+
+export default connect(mapStateToProps, null)(ChatContent);

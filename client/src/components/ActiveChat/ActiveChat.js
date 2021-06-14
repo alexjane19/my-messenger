@@ -4,6 +4,7 @@ import { Box } from "@material-ui/core";
 import { Header, Input, Messages } from "./index";
 import { connect } from "react-redux";
 import { fetchMessages } from "../../store/utils/thunkCreators";
+import {readMessages} from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -25,7 +26,13 @@ const ActiveChat = (props) => {
   const classes = useStyles();
   const { user } = props;
   const conversation = props.conversation || {};
-
+  const readMessage = async (message) => {
+    if (conversation.unread?.messages?.length > 0 && conversation.unread?.messages.includes(message.id)){
+        let index = conversation.unread?.messages.indexOf(message.id);
+      conversation.unread?.messages.splice(index, 1);
+        await props.readMessages(user.id, message, conversation.unread);
+    }
+  };
   return (
     <Box className={classes.root}>
       {conversation.otherUser && (
@@ -42,6 +49,9 @@ const ActiveChat = (props) => {
               conversationId={conversation.id}
               fetchMessages={props.fetchMessages}
               total={conversation.total}
+              unread={conversation.unread}
+              readMessage={readMessage}
+              lastSeenMessage={conversation.lastSeenMessage}
             />
             <Input
               otherUser={conversation.otherUser}
@@ -72,7 +82,11 @@ const mapDispatchToProps = (dispatch) => {
     fetchMessages: (body) => {
       dispatch(fetchMessages(body));
     },
+      readMessages: (userId, message, newUnreadMessages) => {
+          dispatch(readMessages(userId, message, newUnreadMessages))
+      }
   };
 };
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(ActiveChat);

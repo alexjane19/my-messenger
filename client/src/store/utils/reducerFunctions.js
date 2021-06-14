@@ -120,3 +120,27 @@ export const removeUserIsTypingToStore = (state, id) => {
     }
   });
 };
+
+export const addUnreadMessagesToStore = (state, conversationId, unreadMessages) => {
+  return state.map((convo) => {
+    if (convo.id.toString() === conversationId.toString()) {
+      const convoCopy = { ...convo };
+      convoCopy.unread = unreadMessages;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+};
+
+export const addLastSeenMessageToStore = (state, conversationId, messageId) => {
+  return state.map((convo) => {
+    if (convo.id.toString() === conversationId.toString()) {
+      const convoCopy = { ...convo };
+      convoCopy.lastSeenMessage = messageId;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+};
