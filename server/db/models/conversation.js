@@ -68,7 +68,6 @@ Conversation.fetchUserContacts = async function (userId) {
         },
         attributes: ["id", "username", "email", "photoUrl"],
         required: false,
-
       },
     ],
   });
@@ -82,7 +81,7 @@ Conversation.fetchUserContacts = async function (userId) {
       contacts[i] = convo.user2;
       delete convo.user2;
     }
-    conversations[i] = convo.id
+    conversations[i] = convo.id;
   }
   return {
     contacts: contacts,

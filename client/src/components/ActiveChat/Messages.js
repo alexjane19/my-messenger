@@ -1,9 +1,6 @@
 import React, { Component } from "react";
 import { Box, withStyles } from "@material-ui/core";
-import { OtherUserBubble, SenderBubble } from "../ActiveChat";
-import React from "react";
-import { Box, GridList } from "@material-ui/core";
-import { SenderBubble, OtherUserBubble, IsTypingView } from "../ActiveChat";
+import { OtherUserBubble, SenderBubble, IsTypingView } from "../ActiveChat";
 import moment from "moment";
 import { InView } from "react-intersection-observer";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -51,9 +48,8 @@ class Messages extends Component {
     const { classes } = this.props;
     const { messages, otherUser, userId, total, conversationId } = this.props;
     return (
-        <GridList cellHeight="100%" cols={1}>
-
-        <Box className={classes.root}>
+      <Box className={classes.root}>
+        {otherUser.typing && <IsTypingView otherUser={otherUser} />}
         <Box
           ref={(el) => {
             this.messagesEnd = el;
@@ -84,8 +80,6 @@ class Messages extends Component {
           </InView>
         )}
       </Box>
-            {otherUser.typing && <IsTypingView otherUser={otherUser} />}
-        </GridList>
     );
   }
 }
