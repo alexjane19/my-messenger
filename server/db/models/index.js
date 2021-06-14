@@ -17,5 +17,5 @@ module.exports = {
   User,
   Conversation,
   Message,
-  ConversationLog
+  ConversationLog,
 };

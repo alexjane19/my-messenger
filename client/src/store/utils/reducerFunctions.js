@@ -121,7 +121,11 @@ export const removeUserIsTypingToStore = (state, id) => {
   });
 };
 
-export const addUnreadMessagesToStore = (state, conversationId, unreadMessages) => {
+export const addUnreadMessagesToStore = (
+  state,
+  conversationId,
+  unreadMessages
+) => {
   return state.map((convo) => {
     if (convo.id.toString() === conversationId.toString()) {
       const convoCopy = { ...convo };

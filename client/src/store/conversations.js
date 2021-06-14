@@ -98,7 +98,6 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
-
 export const addUnreadMessages = (conversationId, unreadMessages) => {
   return {
     type: ADD_UNREAD_MESSAGES,
@@ -136,19 +135,18 @@ const reducer = (state = [], action) => {
         state,
         action.payload.recipientId,
         action.payload.newMessage
-
       );
     case ADD_UNREAD_MESSAGES:
       return addUnreadMessagesToStore(
-          state,
-          action.payload.conversationId,
-          action.payload.unreadMessages
+        state,
+        action.payload.conversationId,
+        action.payload.unreadMessages
       );
     case ADD_LAST_SEEN_MESSAGE:
       return addLastSeenMessageToStore(
-          state,
-          action.payload.conversationId,
-          action.payload.messageId
+        state,
+        action.payload.conversationId,
+        action.payload.messageId
       );
     case SET_MESSAGES:
       return addMessagesToStore(state, action.payload);

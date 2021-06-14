@@ -129,15 +129,16 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   }
 };
 
-export const readMessages = (userId, message, newUnreadMessages) => async (dispatch) => {
-  try {
-    socket.emit("read", {
-      userId: userId,
-      conversationId: message.conversationId,
-      messageId: message.id,
-    });
-    dispatch(addUnreadMessages(message.conversationId, newUnreadMessages));
-  } catch (error) {
-    console.error(error);
-  }
-};
+export const readMessages =
+  (userId, message, newUnreadMessages) => async (dispatch) => {
+    try {
+      socket.emit("read", {
+        userId: userId,
+        conversationId: message.conversationId,
+        messageId: message.id,
+      });
+      dispatch(addUnreadMessages(message.conversationId, newUnreadMessages));
+    } catch (error) {
+      console.error(error);
+    }
+  };

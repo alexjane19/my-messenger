@@ -14,12 +14,12 @@ const styles = {
   progressBarContainer: {
     textAlign: "center",
   },
-    avatar: {
-        height: 20,
-        width: 20,
-        marginTop: 6,
-        marginLeft: 'auto',
-    },
+  avatar: {
+    height: 20,
+    width: 20,
+    marginTop: 6,
+    marginLeft: "auto",
+  },
 };
 
 class Messages extends Component {
@@ -43,9 +43,9 @@ class Messages extends Component {
   scrollToBottom = () => {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   };
-    viewObserve = async (message, entry) => {
-        this.props.readMessage(message)
-    };
+  viewObserve = async (message, entry) => {
+    this.props.readMessage(message);
+  };
   componentDidMount() {
     setTimeout(() => {
       this.scrollToBottom();
@@ -54,7 +54,14 @@ class Messages extends Component {
 
   render() {
     const { classes } = this.props;
-    const { messages, otherUser, userId, total, conversationId } = this.props;
+    const {
+      messages,
+      otherUser,
+      userId,
+      total,
+      conversationId,
+      lastSeenMessage,
+    } = this.props;
     return (
       <Box className={classes.root}>
         {otherUser.typing && <IsTypingView otherUser={otherUser} />}
@@ -66,14 +73,37 @@ class Messages extends Component {
         {messages.map((message) => {
           const time = moment(message.createdAt).format("h:mm");
 
-          return <Box key={'box'+message.id}>{message.senderId === userId ?
-            <SenderBubble key={message.id} text={message.text} time={time} /> :
-
-              <InView key={'iv'+message.id} onChange={(inView, entry) => this.viewObserve(message, entry)}>
-                  <OtherUserBubble key={message.id} text={message.text} time={time} otherUser={otherUser} />
-              </InView>}
-              {message.id === lastSeenMessage ?<Avatar key={'av'+message.id} alt={otherUser.username} src={otherUser.photoUrl} className={classes.avatar}/>: null}
-              </Box>;
+          return (
+            <Box key={"box" + message.id}>
+              {message.senderId === userId ? (
+                <SenderBubble
+                  key={message.id}
+                  text={message.text}
+                  time={time}
+                />
+              ) : (
+                <InView
+                  key={"iv" + message.id}
+                  onChange={(inView, entry) => this.viewObserve(message, entry)}
+                >
+                  <OtherUserBubble
+                    key={message.id}
+                    text={message.text}
+                    time={time}
+                    otherUser={otherUser}
+                  />
+                </InView>
+              )}
+              {message.id === lastSeenMessage ? (
+                <Avatar
+                  key={"av" + message.id}
+                  alt={otherUser.username}
+                  src={otherUser.photoUrl}
+                  className={classes.avatar}
+                />
+              ) : null}
+            </Box>
+          );
         })}
         {total > messages.length && (
           <InView

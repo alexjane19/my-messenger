@@ -31,10 +31,14 @@ socket.on("connect", () => {
     else store.dispatch(removeUserIsTyping(data.sender));
   });
   socket.on("unread", (data) => {
-    Object.keys(data["conversations"]).map(k => store.dispatch(addUnreadMessages(k, {
-      recipientId: data["recipientId"],
-      messages: data["conversations"][k],
-    })));
+    Object.keys(data["conversations"]).map((k) =>
+      store.dispatch(
+        addUnreadMessages(k, {
+          recipientId: data["recipientId"],
+          messages: data["conversations"][k],
+        })
+      )
+    );
   });
 
   socket.on("seen", (data) => {

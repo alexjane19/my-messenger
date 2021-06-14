@@ -10,8 +10,8 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 20,
     flexGrow: 1,
   },
-  innerContainer:{
-    paddingRight: 40
+  innerContainer: {
+    paddingRight: 40,
   },
   username: {
     fontWeight: "bold",
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   },
   previewTextActive: {
     color: "#000000",
-    fontWeight: 'bold'
+    fontWeight: "bold",
   },
 }));
 
@@ -59,20 +59,32 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText + (unread?.messages?.length > 0 && unread?.recipientId === props.user.id ? ' '+classes.previewTextActive : '')}>
+        <Typography
+          className={
+            classes.previewText +
+            (unread?.messages?.length > 0 &&
+            unread?.recipientId === props.user.id
+              ? " " + classes.previewTextActive
+              : "")
+          }
+        >
           {latestMessageText}
         </Typography>
       </Box>
-      <StyledBadge badgeContent={unread?.messages?.length > 0 && unread?.recipientId === props.user.id ? unread?.messages?.length : 0}>
-      </StyledBadge>
+      <StyledBadge
+        badgeContent={
+          unread?.messages?.length > 0 && unread?.recipientId === props.user.id
+            ? unread?.messages?.length
+            : 0
+        }
+      ></StyledBadge>
     </Box>
   );
 };
 
-
 const mapStateToProps = (state) => {
   return {
-    user: state.user
+    user: state.user,
   };
 };
 

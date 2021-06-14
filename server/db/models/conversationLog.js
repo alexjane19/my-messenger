@@ -4,7 +4,7 @@ const { Op } = require("sequelize");
 
 const ConversationLog = db.define("conversation_log", {
   unreadMessages: {
-    type: Sequelize.ARRAY(Sequelize.INTEGER)    ,
+    type: Sequelize.ARRAY(Sequelize.INTEGER),
     allowNull: true,
   },
   lastSeenMessage: {
@@ -14,30 +14,30 @@ const ConversationLog = db.define("conversation_log", {
   },
 });
 
-
-ConversationLog.findUnreadMessagesByConversation = async function (userId, conversationId) {
+ConversationLog.findUnreadMessagesByConversation = async function (
+  userId,
+  conversationId
+) {
   const query = await ConversationLog.findOne({
     where: {
       conversationId: {
-        [Op.eq]:  conversationId,
+        [Op.eq]: conversationId,
       },
       userId: {
-        [Op.eq]:  userId,
+        [Op.eq]: userId,
       },
     },
     attributes: ["unreadMessages"],
   });
-  if (query)
-    return query.unreadMessages;
+  if (query) return query.unreadMessages;
   return [];
 };
-
 
 ConversationLog.findUnreadMessages = async function (userId) {
   const query = await ConversationLog.findAll({
     where: {
       userId: {
-        [Op.eq]:  userId,
+        [Op.eq]: userId,
       },
     },
     attributes: ["conversationId", "unreadMessages", "lastSeenMessage"],
@@ -49,10 +49,10 @@ ConversationLog.findConversationLog = async function (userId, conversationId) {
   const query = await ConversationLog.findOne({
     where: {
       conversationId: {
-        [Op.eq]:  conversationId,
+        [Op.eq]: conversationId,
       },
       userId: {
-        [Op.eq]:  userId,
+        [Op.eq]: userId,
       },
     },
     attributes: ["unreadMessages", "lastSeenMessage"],
@@ -61,11 +61,11 @@ ConversationLog.findConversationLog = async function (userId, conversationId) {
   if (query)
     return {
       unreadMessages: query.unreadMessages,
-      lastSeenMessage: query.lastSeenMessage
+      lastSeenMessage: query.lastSeenMessage,
     };
   return {
     unreadMessages: [],
-    lastSeenMessage: 0
+    lastSeenMessage: 0,
   };
 };
 
@@ -73,17 +73,16 @@ ConversationLog.findLastSeenMessage = async function (userId, conversationId) {
   const query = await ConversationLog.findOne({
     where: {
       conversationId: {
-        [Op.eq]:  conversationId,
+        [Op.eq]: conversationId,
       },
       userId: {
-        [Op.eq]:  userId,
+        [Op.eq]: userId,
       },
     },
     attributes: ["lastSeenMessage"],
   });
 
-  if (query)
-    return query.lastSeenMessage;
+  if (query) return query.lastSeenMessage;
   return 0;
 };
 
