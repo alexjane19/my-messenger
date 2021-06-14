@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { FormControl, FilledInput } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
-import { postMessage } from "../../store/utils/thunkCreators";
+import { postMessage, sendTypingStatus } from "../../store/utils/thunkCreators";
 
 const styles = {
   root: {
@@ -23,12 +23,18 @@ class Input extends Component {
     this.state = {
       text: "",
     };
+    this.typingTimer = null; //timer identifier
+    this.doneTypingInterval = 5000; //time in ms, 5 second for example
   }
 
   handleChange = (event) => {
     this.setState({
       text: event.target.value,
     });
+    // send typing status
+    this.handleTyping(true);
+    clearTimeout(this.typingTimer);
+    this.typingTimer = setTimeout(this.handleTyping, this.doneTypingInterval);
   };
 
   handleSubmit = async (event) => {
@@ -44,6 +50,16 @@ class Input extends Component {
     this.setState({
       text: "",
     });
+  };
+
+  handleTyping = (status) => {
+    const reqBody = {
+      recipientId: this.props.otherUser.id,
+      conversationId: this.props.conversationId,
+      sender: this.props.user.id,
+      status: status || false,
+    };
+    sendTypingStatus(reqBody);
   };
 
   render() {

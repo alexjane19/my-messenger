@@ -4,6 +4,8 @@ import {
   setNewMessage,
   removeOfflineUser,
   addOnlineUser,
+  addUserIsTyping,
+  removeUserIsTyping,
 } from "./store/conversations";
 
 const socket = io(window.location.origin);
@@ -20,6 +22,11 @@ socket.on("connect", () => {
   });
   socket.on("new-message", (data) => {
     store.dispatch(setNewMessage(data.message, data.sender));
+  });
+
+  socket.on("typing", (data) => {
+    if (data.status) store.dispatch(addUserIsTyping(data.sender));
+    else store.dispatch(removeUserIsTyping(data.sender));
   });
 });
 

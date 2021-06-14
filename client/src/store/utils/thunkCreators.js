@@ -114,6 +114,11 @@ export const postMessage = (body) => async (dispatch) => {
   }
 };
 
+// send user's typing status in the conversation
+export const sendTypingStatus = (body) => {
+  socket.emit("typing", body);
+};
+
 export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/users/${searchTerm}`);

@@ -5,6 +5,8 @@ import {
   removeOfflineUserFromStore,
   addMessageToStore,
   addMessagesToStore,
+  addUserIsTypingToStore,
+  removeUserIsTypingToStore,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -17,6 +19,9 @@ const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
 const SET_MESSAGES = "SET_MESSAGES";
+const ADD_USER_IS_TYPING = "ADD_USER_IS_TYPING";
+const REMOVE_USER_IS_TYPING = "REMOVE_USER_IS_TYPING";
+
 // ACTION CREATORS
 
 export const gotConversations = (conversations) => {
@@ -67,6 +72,20 @@ export const clearSearchedUsers = () => {
   };
 };
 
+export const addUserIsTyping = (id) => {
+  return {
+    type: ADD_USER_IS_TYPING,
+    id,
+  };
+};
+
+export const removeUserIsTyping = (id) => {
+  return {
+    type: REMOVE_USER_IS_TYPING,
+    id,
+  };
+};
+
 // add new conversation when sending a new message
 export const addConversation = (recipientId, newMessage) => {
   return {
@@ -101,6 +120,12 @@ const reducer = (state = [], action) => {
       );
     case SET_MESSAGES:
       return addMessagesToStore(state, action.payload);
+    case ADD_USER_IS_TYPING: {
+      return addUserIsTypingToStore(state, action.id);
+    }
+    case REMOVE_USER_IS_TYPING: {
+      return removeUserIsTypingToStore(state, action.id);
+    }
     default:
       return state;
   }

@@ -96,3 +96,27 @@ export const addMessagesToStore = (state, payload) => {
     }
   });
 };
+
+export const addUserIsTypingToStore = (state, id) => {
+  return state.map((convo) => {
+    if (convo.otherUser.id === id) {
+      const convoCopy = { ...convo };
+      convoCopy.otherUser.typing = true;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+};
+
+export const removeUserIsTypingToStore = (state, id) => {
+  return state.map((convo) => {
+    if (convo.otherUser.id === id) {
+      const convoCopy = { ...convo };
+      convoCopy.otherUser.typing = false;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+};
